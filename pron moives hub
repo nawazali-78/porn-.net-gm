@@ -1,0 +1,27 @@
+from ai_analytics_sdk import ModelTraining
+
+# Initialize custom model training
+trainer = ModelTraining(
+    dataset="user_sessions.csv",
+    target_variable="converted",  # What we want to predict
+    features=["page_views", "time_on_site", "device_type", "referral_source"]
+)
+
+# Train a Gradient Boosting model
+model = trainer.train(
+    algorithm="xgboost",
+    params={"max_depth": 5, "learning_rate": 0.1},
+    test_size=0.2  # 20% validation holdout
+)
+
+# Deploy to analytics dashboard
+model.deploy(
+    endpoint_name="conversion_prediction",
+    real_time=True  # Enable live predictions
+)
+
+# Use in a segmentation rule
+high_intent_users = analytics.create_segment(
+    name="high_intent_users",
+    conditions=[{"model": "conversion_prediction", "score": ">", "threshold": 0.8}]
+)
